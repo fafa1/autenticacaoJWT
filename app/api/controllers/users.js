@@ -14,15 +14,16 @@ module.exports = {
   },
 
   authenticate: (req, res, next) => {
-    userModel.findOne({email: req.body.email}, (err, userInfo) => {
+    userModel.findOne({ email: req.body.email }, (err, userInfo) => {
       if (err) {
         next(err)
       } else {
         
+        console.log(userInfo.password)
         if (bcrypt.compareSync(req.body.password, userInfo.password)) {
            const token = jwt.sign({ id: userInfo._id }, req.app.get('secretKey'), { expiresIn: '1h' })
 
-          res.json({status: "success", message: "Usuário encontrado", data: userInfo, ...token })
+          res.json({status: "success", message: "Usuário encontrado", data: userInfo, token: token })
           
         } else {
           res.json({ status:"error", message: "error de autenticação" })

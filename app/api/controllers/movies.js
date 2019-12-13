@@ -12,13 +12,22 @@ module.exports = {
    },
 
   getById: (req, res, next) => {
-    movieModel.findById(req.params.movieId, (err, movieInfo) => {
+    console.log(req.params)
+
+    movieModel.findById(req.params.movieId, (err, movieInfo) => { 
       // search about next function
-      if (err)
-      console.log('Filme não encontrado')
-        // next(err)
-      else
-        res.json({ status:"success", message: "Filme encontrado", data: movieInfo })
+      err
+        ? res.send({error: {status: 404, message: "Not was possible to find for the movie"}})
+        : res.json({ status:"success", message: "Filme encontrado", data: movieInfo })        
+    })
+  },
+
+  getByName: (req, res, next) => {
+    console.log(req.params.movieName)
+    movieModel.find({ name: {$all:[req.params.movieName] }}, (err, movieInfo) => {
+      err
+        ? next(err)
+        : res.json({ status:"success", message: "Filme encontrado", data: movieInfo })
     })
   },
 
@@ -46,8 +55,9 @@ module.exports = {
   },
 
   deleteById: function(req, res, next) {
-    movieModel.findByIdAndRemove(req.params.movieId, function(err, movieInfo){
+    movieModel.findByIdAndDelete(req.params.movieId, function(err, movieInfo){
      if (err) {
+       res.send({error: {message: "Não foi possível remover"}})
        console.log('Não encontrado ' + err)
       next(err)
      }

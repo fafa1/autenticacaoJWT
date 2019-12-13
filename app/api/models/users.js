@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 const bcrypt  = require('bcrypt')
-const saltRounds = 8
 
 const Schema = mongoose.Schema
 
@@ -22,12 +21,14 @@ const UserSchema = new Schema({
    }
 })
 
-UserSchema.pre('save', async next => {
-    await bcrypt.hash('testeSenha', saltRounds, (err, hash) => {
-      if(err) console.log(err)
-       this.password = hash
-       console.log(this.password)
-    })
+UserSchema.pre('save', async function (next) {
+  // Hash the password before saving the user model
+  if (this.isModified('password')) {
+      this.password = await bcrypt.hash(this.password, 8)
+  }
+  next()
 })
+
+
 
 module.exports = mongoose.model('User', UserSchema)
